@@ -1,6 +1,6 @@
 import pypinyin
-from pypinyin import load_phrases_dict, Style
-from dictionary import custom_dict
+from pypinyin import load_phrases_dict, Style, load_single_dict
+from dictionary import phrases_dict, single_dict
 
 ZHUYIN_TO_KEY = {
     'ㄅ': '1', 'ㄆ': 'q', 'ㄇ': 'a', 'ㄈ': 'z',
@@ -43,7 +43,8 @@ def text_to_keystrokes(text):
     return "".join(result_keys)
 
 def initial():
-    load_phrases_dict(custom_dict)
+    load_phrases_dict(phrases_dict)
+    load_single_dict(single_dict)
 
 if __name__ == "__main__":
     initial()
