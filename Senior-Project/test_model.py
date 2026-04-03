@@ -19,7 +19,7 @@ def interactive_test():
     print("✨ 模型就緒！輸入 'exit' 退出。")
 
     while True:
-        user_input = input("\n請輸入按鍵碼 (如 e04): ").strip().lower()
+        user_input = input("\n請輸入按鍵碼 (如 j83 或 ru04): ").strip().lower()
         if user_input == 'exit': break
         
         with torch.no_grad():
