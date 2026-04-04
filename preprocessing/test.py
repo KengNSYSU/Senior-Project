@@ -1,6 +1,8 @@
-from pypinyin import pinyin, lazy_pinyin, Style
+from pypinyin import pinyin, Style
 
 while True:
     text = input()
-    print(pinyin(text,style=Style.BOPOMOFO))
-    print(pinyin(text))
+    results = pinyin(text, style=Style.BOPOMOFO, heteronym=True)
+
+    # results 的格式會是 [['ㄓㄨㄥˋ', 'ㄔㄨㄥˊ']]
+    print(results[0])
