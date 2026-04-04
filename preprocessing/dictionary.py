@@ -125,5 +125,11 @@ single_dict = {
     ord('髮'): 'fǎ',
     ord('緝'): 'qì',
     ord('沒'): 'mò,méi',
+    ord('縹'): 'piǎo,piào',
+    ord('色'): 'sè,shǎi,shè',
+    ord('拾'): 'shí,shè,shī',
+    ord('說'): 'shuō,shuì,yuè',
+    ord('數'): 'shù,shǔ,shuò,cù,sù',
+    
 }
 # ord(''): '',
