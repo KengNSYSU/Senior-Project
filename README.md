@@ -1,22 +1,4 @@
 # Senior-Project
-## 專案結構
-
-```
-data/
-	lexicon.json
-src/
-	app.py
-	config.py
-	core/
-		contracts.py
-		engine.py
-		inference.py
-	adapters/
-		c_input_capture.py
-		c_overlay_ui.py
-		c_output_commit.py
-requirements.txt
-```
 
 ## 執行方式（Windows）
 
@@ -50,29 +32,3 @@ python -m src.app
 	- `Esc`：清空組字
 - 英文詞段會維持原樣，不會被強制轉換。
 - 範例：`ji394t apple` -> `我愛吃apple`
-
-## 後續升級設計規則
-
-為了降低遷移成本，此分支遵守以下原則：
-
-1. 核心邏輯不得依賴 overlay/hook API。
-2. 輸入、輸出與 UI 的平台細節需隔離在 adapters。
-3. 共享契約保持穩定（`Key -> State -> Candidate -> CommitAction`）。
-4. A/B/E 遷移應先替換 adapters，再細修平台行為。
-
-## 已知 MVP 限制
-
-- Overlay 與全域按鍵行為會因目標應用程式而異。
-- 候選 UI 為了驗證速度刻意保持簡化。
-- 本地 fallback 評分僅為佔位模型路徑，非最終模型品質。
-
-## 下一步（C 驗證後）
-
-蒐集並比較：
-
-- 按鍵到候選延遲（平均值/P95）
-- 提交成功率與回滾率
-- 跨應用程式相容性
-- 候選排序品質
-
-接著在 A/B/E 中選定一條最終產品化路線。
