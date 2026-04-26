@@ -66,7 +66,8 @@ class ImeCoreEngine:
         if key == "enter":
             # 僅 Enter 作為提交鍵，避免與一聲（space）衝突。
             if self._should_convert_buffer(self._state.buffer):
-                return self._commit_selected(trigger_consumed=False)
+                # Enter 常會先在輸入框產生換行，需多刪 1 碼避免殘留前字。
+                return self._commit_selected(trigger_consumed=True)
             self._state.debug_message = (
                 f"enter：未轉換（buffer='{self._state.buffer}'，候選={len(self._state.candidates)}）"
             )
