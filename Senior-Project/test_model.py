@@ -28,7 +28,7 @@ def interactive_test():
             trg_input = torch.tensor([[1]]).to(device) # <SOS>
             
             result = ""
-            for _ in range(5):
+            for _ in range(1):
                 output = model(src_tensor, trg_input)
                 next_token = output.argmax(dim=-1)[:, -1].item()
                 if next_token == 2 or next_token == 0: break
