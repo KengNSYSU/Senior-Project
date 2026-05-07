@@ -1,31 +1,20 @@
-import os
-import glob
+import torch
+from transformers import BertTokenizer
 
-class Tokenizer:
-    def __init__(self, dataset_path="./dataset"):
+class KeySourceTokenizer:
+    """手動設定的鍵盤按鍵 Tokenizer (Source 端)"""
+    def __init__(self):
         # 0:PAD, 1:SOS, 2:EOS, 3:UNK
-        self.vocab = ["<PAD>", "<SOS>", "<EOS>", "<UNK>"]
-        
-        # 自動掃描所有字元建立字典
-        all_chars = set()
-        files = glob.glob(os.path.join(dataset_path, "*.txt"))
-        for f_path in files:
-            with open(f_path, 'r', encoding='utf-8') as f:
-                all_chars.update(list(f.read()))
-        
-        for ignore in ["\n", "\t", "\r"]:
-            if ignore in all_chars:
-                all_chars.remove(ignore)
-        
-        self.vocab.extend(sorted(list(all_chars)))
+        self.special_tokens = ["<PAD>", "<SOS>", "<EOS>", "<UNK>"]
+        self.keys = list("abcdefghijklmnopqrstuvwxyz0123456789.,/;+-=[] ")
+        self.vocab = self.special_tokens + self.keys
         self.char_to_id = {char: i for i, char in enumerate(self.vocab)}
         self.id_to_char = {i: char for i, char in enumerate(self.vocab)}
-        print(f"📊 字典建立完成！共識別出 {len(self.vocab)} 個字元。")
 
-    def encode(self, text, max_len=10):
-        # 轉為 ID 並加上開始/結束符號
+    def encode(self, text, max_len=32):
+        # 統一轉小寫處理
+        text = text.lower()
         ids = [1] + [self.char_to_id.get(c, 3) for c in text] + [2]
-        # 如果長度不足 max_len，補 0 (<PAD>)
         if len(ids) < max_len:
             ids += [0] * (max_len - len(ids))
         return ids[:max_len]
@@ -33,3 +22,27 @@ class Tokenizer:
     @property
     def vocab_size(self):
         return len(self.vocab)
+
+class LabelTargetTokenizer:
+    """使用 BERT-Base-Chinese 的 Tokenizer (Target 端)"""
+    def __init__(self):
+        # 自動從 Hugging Face 下載或讀取快取
+        self.tokenizer = BertTokenizer.from_pretrained("bert-base-chinese")
+        # BERT 的特殊 ID: [PAD]=0, [UNK]=100, [CLS]=101, [SEP]=102
+        self.cls_id = self.tokenizer.cls_token_id # 相當於 <SOS>
+        self.sep_id = self.tokenizer.sep_token_id # 相當於 <EOS>
+
+    def encode(self, text, max_len=32):
+        # 使用 BERT 的編碼方式，加上開始與結束符號
+        encoded = self.tokenizer.encode(
+            text, 
+            add_special_tokens=True, 
+            max_length=max_len, 
+            truncation=True, 
+            padding='max_length'
+        )
+        return encoded
+
+    @property
+    def vocab_size(self):
+        return self.tokenizer.vocab_size
