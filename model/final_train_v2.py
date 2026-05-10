@@ -24,7 +24,7 @@ class ZhuyinDataset(Dataset):
                         self.pairs.append((src_str, trg_str))
         print(f"✅ 成功載入數據量: {len(self.pairs)} 筆")
 
-    # def __len__(self): return len(self.pairs)
+    def __len__(self): return len(self.pairs)
 
     def __getitem__(self, idx):
         src_str, trg_str = self.pairs[idx]
