@@ -143,3 +143,38 @@ class HybridInferenceProvider(InferenceProvider):
                 if normalized_values:
                     cleaned[normalized_key] = normalized_values
         return cleaned
+
+
+class SimpleTestInferenceProvider(InferenceProvider):
+    """簡單測試推理提供者：使用硬編碼規則驗證鍵盤輸入是否被正確捕捉。
+
+    例子：輸入 'ji3' 回傳 '好'。
+    """
+
+    # 硬編碼測試規則：鍵序 -> 轉換結果。
+    _TEST_RULES = {
+        "cl3": "好",
+        "ji4": "計",
+        "si3": "你",
+        "cl3": "好",
+        "sm3": "女",
+        "ji394t ": "我愛吃",
+        "ji3": "我",
+        "94": "愛",
+        "t ": "吃",
+    }
+
+    def infer(self, buffer: str, top_k: int = 9) -> List[CandidateItem]:
+        # 直接查表返回單一候選。
+        result = self._TEST_RULES.get(buffer)
+        if result:
+            return [
+                CandidateItem(
+                    text=result,
+                    final_score=1.0,
+                    source="test-hardcoded",
+                    model_score=1.0,
+                    rule_score=1.0,
+                )
+            ]
+        return []

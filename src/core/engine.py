@@ -55,8 +55,8 @@ class ImeCoreEngine:
             return None
 
         if key == "space":
-            # 空白鍵在此模式下代表一聲，寫入鍵序而非提交。
-            self._state.buffer += "1"
+            # 空白鍵在此模式下代表一聲，寫入空格符號而非提交。
+            self._state.buffer += " "
             self._refresh_candidates()
             self._state.debug_message = (
                 f"輸入 'space(一聲)'：buffer='{self._state.buffer}'，候選={len(self._state.candidates)}"
@@ -112,7 +112,9 @@ class ImeCoreEngine:
     def _is_composition_key(self, key: str) -> bool:
         if len(key) != 1:
             return False
-        return key.isalpha() or key in self._ZHUYIN_MARKER_KEYS
+        # 將所有可印出字元視為組字鍵（字母、數字、標點等），
+        # 控制鍵仍由上方分支處理（如 space/enter/backspace 等）。
+        return key.isprintable()
 
     def _should_convert_buffer(self, buffer: str) -> bool:
         if not buffer:

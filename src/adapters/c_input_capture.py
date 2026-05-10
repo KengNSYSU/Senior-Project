@@ -41,7 +41,7 @@ class InputCaptureAdapter:
         # 將 pynput key 物件轉成核心約定字串。
         if isinstance(key, keyboard.KeyCode):
             if key.char:
-                return key.char.lower()
+                return key.char
             return ""
 
         key_map = {
