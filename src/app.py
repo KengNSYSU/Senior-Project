@@ -8,7 +8,8 @@ from src.adapters.c_output_commit import OutputCommitAdapter
 from src.adapters.c_overlay_ui import OverlayWindow
 from src.config import load_config
 from src.core.engine import ImeCoreEngine
-from src.core.inference import HybridInferenceProvider, InferenceConfig, SimpleTestInferenceProvider
+from src.core.inference import HybridInferenceProvider, InferenceConfig
+from src.core.test_inference import SimpleTestInferenceProvider
 
 
 def main() -> None:

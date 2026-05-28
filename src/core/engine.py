@@ -59,7 +59,7 @@ class ImeCoreEngine:
             self._state.buffer += " "
             self._refresh_candidates()
             self._state.debug_message = (
-                f"輸入 'space(一聲)'：buffer='{self._state.buffer}'，候選={len(self._state.candidates)}"
+                f"輸入 'space'：buffer='{self._state.buffer}'，候選={len(self._state.candidates)}"
             )
             return None
 
@@ -67,7 +67,9 @@ class ImeCoreEngine:
             # 僅 Enter 作為提交鍵，避免與一聲（space）衝突。
             if self._should_convert_buffer(self._state.buffer):
                 # Enter 常會先在輸入框產生換行，需多刪 1 碼避免殘留前字。
-                return self._commit_selected(trigger_consumed=True)
+                action = self._commit_selected(trigger_consumed=True)
+                self._clear_composition()
+                return action
             self._state.debug_message = (
                 f"enter：未轉換（buffer='{self._state.buffer}'，候選={len(self._state.candidates)}）"
             )
@@ -106,7 +108,6 @@ class ImeCoreEngine:
 
         trigger = "space" if trigger_consumed else "enter"
         self._state.debug_message = f"{trigger} 提交：'{text}'，replace_len={replace_len}"
-        self._clear_composition()
         return CommitAction(text=text, replace_len=replace_len)
 
     def _is_composition_key(self, key: str) -> bool:
