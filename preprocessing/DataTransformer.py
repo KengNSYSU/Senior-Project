@@ -63,33 +63,26 @@ if __name__ == "__main__":
     initial()
 
     input_path = 'input.txt'
-    output_dir = 'output_results'
-    
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-        print(f"已建立資料夾: {output_dir}")
+    output_path = 'output.txt'
 
     try:
         with open(input_path, 'r', encoding='utf-8') as f:
-            content = f.read().strip()
+            lines = f.readlines()
         
-        results, stats = process_combinations(content)
+        all_output_lines = []
+        for line in lines:
+            word = line.strip()
+            if not word:
+                continue
+            
+            results, _ = process_combinations(word)
+            for keystrokes in results:
+                all_output_lines.append(f"{keystrokes}\t{word}\n")
         
-        stats_path = os.path.join(output_dir, 'stats.txt')
-        with open(stats_path, 'w', encoding='utf-8') as f_stats:
-            f_stats.write(f"總排列組合數: {len(results)}\n")
-            f_stats.write("-" * 30 + "\n")
-            for item in stats:
-                line = f"字元: {item['char']} | 讀音數: {item['count']} | 讀音: {', '.join(item['pronounces'])}\n"
-                f_stats.write(line)
-        print(f"統計檔案已存至: {stats_path}")
-
-        for i, keystrokes in enumerate(results, 1):
-            file_path = os.path.join(output_dir, f'output_{i}.txt')
-            with open(file_path, 'w', encoding='utf-8') as f_out:
-                f_out.write(keystrokes)
+        with open(output_path, 'w', encoding='utf-8') as f_out:
+            f_out.writelines(all_output_lines)
         
-        print(f"成功完成！共 {len(results)} 個組合檔案已存入 '{output_dir}' 資料夾。")
+        print(f"成功完成！結果已寫入至 {output_path}，共 {len(all_output_lines)} 筆組合。")
             
     except FileNotFoundError:
         print(f"找不到輸入檔案: {input_path}")
