@@ -12,9 +12,12 @@ class KeySourceTokenizer:
         self.id_to_char = {i: char for i, char in enumerate(self.vocab)}
 
     def encode(self, text, max_len=32):
-        # 統一轉小寫處理
         text = text.lower()
-        ids = [1] + [self.char_to_id.get(c, 3) for c in text] + [2]
+        
+        space_id = self.char_to_id.get(" ", 3) 
+        
+        ids = [1] + [self.char_to_id.get(c, space_id) for c in text] + [2]
+        
         if len(ids) < max_len:
             ids += [0] * (max_len - len(ids))
         return ids[:max_len]
