@@ -1,6 +1,7 @@
 from __future__ import annotations
 """C 方案輸入擷取器：監聽全域鍵盤，轉成核心可處理事件。"""
 
+import time
 from typing import Callable
 
 from pynput import keyboard
@@ -12,6 +13,7 @@ class InputCaptureAdapter:
         self._on_key = on_key
         self._listener: keyboard.Listener | None = None
         self._capture_paused = False
+        self._suppress_until = 0.0
 
     def start(self) -> None:
         # 啟動背景監聽執行緒。
@@ -21,9 +23,14 @@ class InputCaptureAdapter:
     def set_paused(self, paused: bool) -> None:
         # 提交文字時暫停擷取，避免自觸發回圈。
         self._capture_paused = paused
+        if not paused:
+            # 避免提交回灌的尾端事件在恢復後被擷取。
+            self._suppress_until = time.monotonic() + 0.05
 
     def _on_press(self, key: keyboard.Key | keyboard.KeyCode) -> None:
         if self._capture_paused:
+            return
+        if time.monotonic() < self._suppress_until:
             return
 
         normalized = self._normalize_key(key)
