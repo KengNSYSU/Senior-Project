@@ -1,7 +1,9 @@
 import pypinyin
 from pypinyin import load_phrases_dict, Style, load_single_dict
-import itertools
+import random
 import os
+from tqdm import tqdm  # 引入 tqdm 進度條模組
+
 try:
     from dictionary import phrases_dict, single_dict
 except ImportError:
@@ -37,21 +39,24 @@ def process_combinations(text):
     pinyin_list = pypinyin.pinyin(text, style=Style.BOPOMOFO, heteronym=True, errors='default')
     
     stats = []
+    chosen_combo = []
+    
     for char, pronounces in zip(text, pinyin_list):
         stats.append({
             'char': char,
             'count': len(pronounces),
             'pronounces': pronounces
         })
+        if pronounces:
+            chosen_combo.append(random.choice(pronounces))
+        else:
+            chosen_combo.append(char)
     
-    combinations = list(itertools.product(*pinyin_list))
+    result_keys = []
+    for zhuyin in chosen_combo:
+        result_keys.append(zhuyin_to_keys(zhuyin))
     
-    all_results = []
-    for combo in combinations:
-        result_keys = []
-        for zhuyin in combo:
-            result_keys.append(zhuyin_to_keys(zhuyin))
-        all_results.append("".join(result_keys))
+    all_results = ["".join(result_keys)]
         
     return all_results, stats
 
@@ -62,19 +67,19 @@ def initial():
 if __name__ == "__main__":
     initial()
 
-    input_path = 'input.txt'
-    output_path = 'output.txt'
+    input_path = os.path.join("original_dataset", "ch_corpus.txt")
+    output_path = os.path.join("dataset", "output1.txt")
 
     try:
         with open(input_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
         
         all_output_lines = []
-        for line in lines:
+        
+        for line in tqdm(lines, desc="資料處理中", unit="行"):
             word = line.strip()
             if not word:
                 continue
-            
             results, _ = process_combinations(word)
             for keystrokes in results:
                 all_output_lines.append(f"{keystrokes}\t{word}\n")
@@ -82,7 +87,7 @@ if __name__ == "__main__":
         with open(output_path, 'w', encoding='utf-8') as f_out:
             f_out.writelines(all_output_lines)
         
-        print(f"成功完成！結果已寫入至 {output_path}，共 {len(all_output_lines)} 筆組合。")
+        print(f"\n成功完成！結果已寫入至 {output_path}，共 {len(all_output_lines)} 筆組合。")
             
     except FileNotFoundError:
         print(f"找不到輸入檔案: {input_path}")
