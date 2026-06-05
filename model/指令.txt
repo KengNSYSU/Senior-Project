@@ -1,0 +1,2 @@
+cd Senior-Project
+python final_train_v2.py
