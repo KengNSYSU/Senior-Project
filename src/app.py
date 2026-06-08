@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import os
 
-from src.adapters.c_input_capture import InputCaptureAdapter
-from src.adapters.c_output_commit import OutputCommitAdapter
-from src.adapters.c_overlay_ui import OverlayWindow
+from src.adapters.input_capture import InputCaptureAdapter
+from src.adapters.output_commit import OutputCommitAdapter
+from src.adapters.overlay_ui import OverlayWindow
 from src.config import load_config
 from src.core.engine import ImeCoreEngine
 from src.core.inference import HybridInferenceProvider, InferenceConfig
@@ -20,15 +20,12 @@ def main() -> None:
     use_test_mode = os.getenv("ZHUYIN_TEST_MODE", "0") == "1"
     if use_test_mode:
         # 簡單測試模式：只用硬編碼規則驗證鍵盤輸入。
+        from src.core.test_inference import SimpleTestInferenceProvider
         inference_provider = SimpleTestInferenceProvider()
     else:
-        # 正常模式：優先遠端模型，失敗時退回本地詞典。
-        inference_provider = HybridInferenceProvider(
-            InferenceConfig(
-                lexicon_path=config.lexicon_path,
-                remote_endpoint=config.remote_model_endpoint,
-            )
-        )
+        # 正常模式：直接使用本機模型 (Local Mode)。
+        from src.core.inference import LocalModelInferenceProvider
+        inference_provider = LocalModelInferenceProvider()
 
     # 建立核心引擎與浮層視窗。
     engine = ImeCoreEngine(inference_provider)

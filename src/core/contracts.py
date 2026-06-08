@@ -46,13 +46,3 @@ class CommitAction:
 class InferenceProvider(Protocol):
     def infer(self, buffer: str, top_k: int = 9) -> List[CandidateItem]:
         ...
-
-
-class OverlayPresenter(Protocol):
-    def render(self, state: CompositionState) -> None:
-        ...
-
-
-class OutputCommitter(Protocol):
-    def commit_text(self, text: str, replace_len: int = 0) -> None:
-        ...

@@ -7,9 +7,6 @@ from .contracts import CommitAction, CompositionState, InferenceProvider
 
 
 class ImeCoreEngine:
-    # 注音專用鍵（不含 a-z，因 a-z 與英文共用，需搭配規則判斷）。
-    _ZHUYIN_MARKER_KEYS = set("125890-;,./3467")
-
     def __init__(self, inference_provider: InferenceProvider) -> None:
         # 透過注入方式接推理器，保持核心可替換與可測試。
         self._provider = inference_provider
@@ -116,14 +113,6 @@ class ImeCoreEngine:
         # 將所有可印出字元視為組字鍵（字母、數字、標點等），
         # 控制鍵仍由上方分支處理（如 space/enter/backspace 等）。
         return key.isprintable()
-
-    def _should_convert_buffer(self, buffer: str) -> bool:
-        if not buffer:
-            return False
-        # 包含注音專用鍵時一定轉換；或已有候選時也允許轉換。
-        if any(ch in self._ZHUYIN_MARKER_KEYS for ch in buffer):
-            return True
-        return bool(self._state.candidates)
 
     def _refresh_candidates(self) -> None:
         # 每次緩衝變動即重新推理候選。
