@@ -1,3 +1,4 @@
 import predictor
 predictor.initialize()
-print(predictor.predict(input()))
+while True:
+    print(predictor.predict(input()))
