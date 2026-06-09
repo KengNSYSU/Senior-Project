@@ -7,5 +7,4 @@ while i < 13:
     i+=1
     results = pinyin(text, style=Style.BOPOMOFO, heteronym=True)
 
-    # results 的格式會是 [['ㄓㄨㄥˋ', 'ㄔㄨㄥˊ']]
     print(results[0])
