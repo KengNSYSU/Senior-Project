@@ -76,8 +76,8 @@ def process_single_line(line):
 if __name__ == "__main__":
     initial()
 
-    input_path = os.path.join("original_dataset", "english_sentences.txt")
-    output_path = os.path.join("testing_dataset", "output2.txt")
+    input_path = os.path.join("original_dataset", "mixed_2000_sentences.txt")
+    output_path = os.path.join("testing_dataset", "output4.txt")
 
     try:
         with open(input_path, 'r', encoding='utf-8') as f:

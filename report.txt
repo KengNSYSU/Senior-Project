@@ -1,0 +1,12 @@
+output1:
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 76.65%
+Average Substring Accuracy: 37.23%
+output2:
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 51.13%
+Average Substring Accuracy: 31.66%
+output3:
+Total sentences evaluated: 2050
+Average Subsequence Accuracy: 39.27%
+Average Substring Accuracy: 25.65%

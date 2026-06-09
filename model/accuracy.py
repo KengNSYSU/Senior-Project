@@ -54,7 +54,8 @@ def main():
                 # Split strictly by tab character
                 parts = line.split('\t')
                 if len(parts) >= 2:
-                    print(count)
+                    if count%10 == 0:
+                        print(count)
                     count += 1
                     
                     # Do not strip spaces, as they might be part of the data
