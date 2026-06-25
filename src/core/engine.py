@@ -26,63 +26,73 @@ class ImeCoreEngine:
         return replace(self._state)
 
     def handle_key(self, key: str) -> CommitAction | None:
+        """根據按鍵類型分派給對應的處理方法。"""
         if key == "esc":
-            self._state.debug_message = "Esc：清空組字"
-            self._clear_composition()
-            return None
-
+            return self._handle_escape()
         if key == "backspace":
-            if self._state.buffer:
-                self._state.buffer = self._state.buffer[:-1]
-                self._refresh_candidates()
-                self._state.debug_message = (
-                    f"Backspace：buffer='{self._state.buffer}'，候選={len(self._state.candidates)}"
-                )
-            else:
-                self._state.debug_message = "Backspace：buffer 已是空"
-            return None
-
-        if key in ("up", "down") and self._state.candidates:
-            # 在候選清單中循環移動游標。
-            step = -1 if key == "up" else 1
-            total = len(self._state.candidates)
-            self._state.selected_index = (self._state.selected_index + step) % total
-            selected = self._state.candidates[self._state.selected_index].text
-            self._state.debug_message = f"{key}：選擇候選 -> {selected}"
-            return None
-
-        if key == "space":
-            # 空白鍵在此模式下代表一聲，寫入空格符號而非提交。
-            self._state.buffer += " "
-            self._refresh_candidates()
-            self._state.debug_message = (
-                f"輸入 'space'：buffer='{self._state.buffer}'，候選={len(self._state.candidates)}"
-            )
-            return None
-
+            return self._handle_backspace()
+        if key in ("up", "down"):
+            return self._handle_navigation(key)
         if key == "enter":
-            # 僅 Enter 作為提交鍵，避免與一聲（space）衝突。
-            if self._state.candidates:
-                # Enter 常會先在輸入框產生換行，需多刪 1 碼避免殘留前字。
-                return self._commit_selected(trigger_consumed=True)
-            if self._state.buffer:
-                self._state.debug_message = "enter：沒有候選，清空 buffer"
-            else:
-                self._state.debug_message = "enter：buffer 已是空"
-            self._clear_composition()
-            return None
+            return self._handle_commit()
+        if key == "space" or self._is_composition_key(key):
+            return self._handle_composition(key)
 
-        # 數字鍵在注音鍵盤中同時承擔聲調/韻母，不作候選快捷鍵。
+        # 忽略所有其他按鍵
+        return self._handle_ignored_key(key)
 
-        if self._is_composition_key(key):
-            # 累積詞段鍵序，提供模型判斷是否為注音輸入。
-            self._state.buffer += key
+    def _handle_escape(self) -> None:
+        self._state.debug_message = "Esc：清空組字"
+        self._clear_composition()
+        return None
+
+    def _handle_backspace(self) -> None:
+        if self._state.buffer:
+            self._state.buffer = self._state.buffer[:-1]
             self._refresh_candidates()
             self._state.debug_message = (
-                f"輸入 '{key}'：buffer='{self._state.buffer}'，候選={len(self._state.candidates)}"
+                f"Backspace：buffer='{self._state.buffer}'，候選={len(self._state.candidates)}"
             )
-            return None
+        else:
+            self._state.debug_message = "Backspace：buffer 已是空"
+        return None
 
+    def _handle_navigation(self, key: str) -> None:
+        if not self._state.candidates:
+            return None
+        # 在候選清單中循環移動游標。
+        step = -1 if key == "up" else 1
+        total = len(self._state.candidates)
+        self._state.selected_index = (self._state.selected_index + step) % total
+        selected = self._state.candidates[self._state.selected_index].text
+        self._state.debug_message = f"{key}：選擇候選 -> {selected}"
+        return None
+
+    def _handle_commit(self) -> CommitAction | None:
+        # 僅 Enter 作為提交鍵，避免與一聲（space）衝突。
+        if self._state.candidates:
+            # Enter 常會先在輸入框產生換行，需多刪 1 碼避免殘留前字。
+            return self._commit_selected(trigger_consumed=True)
+
+        if self._state.buffer:
+            self._state.debug_message = "enter：沒有候選，清空 buffer"
+        else:
+            self._state.debug_message = "enter：buffer 已是空"
+        self._clear_composition()
+        return None
+
+    def _handle_composition(self, key: str) -> None:
+        # 空白鍵在此模式下代表一聲，寫入空格符號而非提交。
+        # 其他可印出字元則為組字鍵。
+        char = " " if key == "space" else key
+        self._state.buffer += char
+        self._refresh_candidates()
+        self._state.debug_message = (
+            f"輸入 '{key}'：buffer='{self._state.buffer}'，候選={len(self._state.candidates)}"
+        )
+        return None
+
+    def _handle_ignored_key(self, key: str) -> None:
         # 非組字鍵會中斷目前詞段。
         self._state.debug_message = f"忽略鍵 '{key}'：非組字鍵"
         self._clear_composition()
@@ -110,8 +120,7 @@ class ImeCoreEngine:
     def _is_composition_key(self, key: str) -> bool:
         if len(key) != 1:
             return False
-        # 將所有可印出字元視為組字鍵（字母、數字、標點等），
-        # 控制鍵仍由上方分支處理（如 space/enter/backspace 等）。
+        # 將所有可印出字元視為組字鍵（字母、數字、標點等）。
         return key.isprintable()
 
     def _refresh_candidates(self) -> None:
@@ -125,3 +134,4 @@ class ImeCoreEngine:
         self._state.selected_index = 0
         if clear_debug:
             self._state.debug_message = ""
+

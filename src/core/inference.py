@@ -2,6 +2,7 @@ from __future__ import annotations
 """推理模組：呼叫遠端模型。"""
 
 import json
+import logging
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -51,7 +52,8 @@ class HybridInferenceProvider(InferenceProvider):
         try:
             with urllib.request.urlopen(request, timeout=self._config.timeout_seconds) as response:
                 data = json.loads(response.read().decode("utf-8"))
-        except (urllib.error.URLError, TimeoutError, ValueError):
+        except (urllib.error.URLError, TimeoutError, ValueError) as e:
+            logging.error(f"Remote inference failed: {e}", exc_info=True)
             return []
 
         raw_candidates = data.get("candidates", [])
@@ -78,23 +80,18 @@ class LocalModelInferenceProvider(InferenceProvider):
 
     def __init__(self) -> None:
         # 在此匯入 predictor，確保相依性與環境準備就緒。
-        import sys
         import os
-        
-        # 暫時切換工作目錄到 src，確保 predictor 內部的相對路徑能正確載入權重與字典
-        original_cwd = os.getcwd()
+        from .. import predictor
+
+        # 取得 src 的絕對路徑
+        # __file__ -> .../src/core/inference.py
+        # os.path.dirname -> .../src/core
+        # os.path.dirname -> .../src
         src_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        os.chdir(src_dir)
-        
-        try:
-            # 將 src 暫時加入 sys.path 確保能找到 transformer_main 等同層模組
-            if src_dir not in sys.path:
-                sys.path.insert(0, src_dir)
-            import predictor
-            self.predictor = predictor
-            self.predictor.initialize()
-        finally:
-            os.chdir(original_cwd)
+
+        self.predictor = predictor
+        # 將路徑作為參數傳入，而不是改變工作目錄
+        self.predictor.initialize(base_path=src_dir)
 
     def infer(self, buffer: str, top_k: int = 9) -> List[CandidateItem]:
         if not buffer:
@@ -116,5 +113,5 @@ class LocalModelInferenceProvider(InferenceProvider):
                 ]
             return []
         except Exception as e:
-            print(f"Local model inference error: {e}")
+            logging.error(f"Local model inference error: {e}", exc_info=True)
             return []

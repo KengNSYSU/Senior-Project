@@ -1,7 +1,7 @@
 import torch
 import os
-from transformer_main import TranscoderModel
-from dictionary import KeySourceTokenizer, LabelTargetTokenizer
+from .transformer_main import TranscoderModel
+from .dictionary import KeySourceTokenizer, LabelTargetTokenizer
 
 device = None
 src_tokenizer = None
@@ -9,10 +9,11 @@ trg_tokenizer = None
 model = None
 
 
-def initialize():
+def initialize(base_path: str = "."):
     global device, src_tokenizer, trg_tokenizer, model
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
     src_tokenizer = KeySourceTokenizer()
     trg_tokenizer = LabelTargetTokenizer()
     model = TranscoderModel(
@@ -21,12 +22,12 @@ def initialize():
         d_model=512
     ).to(device)
 
-    weight_path = "transcoder_v1.pth"
+    weight_path = os.path.join(base_path, "transcoder_v1.pth")
     if not os.path.exists(weight_path):
-        print("❌ 找不到權重檔！")
+        print(f"❌ 找不到權重檔！路徑：{weight_path}")
         return False
 
-    model.load_state_dict(torch.load(weight_path, map_location=device))
+    model.load_state_dict(torch.load(weight_path, map_location=device, weights_only=True))
     model.eval()
     return True
 

@@ -7,25 +7,29 @@ from src.adapters.input_capture import InputCaptureAdapter
 from src.adapters.output_commit import OutputCommitAdapter
 from src.adapters.overlay_ui import OverlayWindow
 from src.config import load_config
+from src.core.contracts import InferenceProvider
 from src.core.engine import ImeCoreEngine
-from src.core.inference import HybridInferenceProvider, InferenceConfig
-from src.core.test_inference import SimpleTestInferenceProvider
+
+
+def create_inference_provider() -> InferenceProvider:
+    """根據環境變數建立對應的推理提供者。"""
+    use_test_mode = os.getenv("ZHUYIN_TEST_MODE", "0") == "1"
+    if use_test_mode:
+        # 簡單測試模式：只用硬編碼規則驗證鍵盤輸入。
+        from src.core.test_inference import SimpleTestInferenceProvider
+        return SimpleTestInferenceProvider()
+
+    # 正常模式：直接使用本機模型 (Local Mode)。
+    from src.core.inference import LocalModelInferenceProvider
+    return LocalModelInferenceProvider()
 
 
 def main() -> None:
     # 載入環境設定（詞典路徑、遠端模型端點）。
     config = load_config()
 
-    # 根據測試模式標誌決定使用哪個推理提供者。
-    use_test_mode = os.getenv("ZHUYIN_TEST_MODE", "0") == "1"
-    if use_test_mode:
-        # 簡單測試模式：只用硬編碼規則驗證鍵盤輸入。
-        from src.core.test_inference import SimpleTestInferenceProvider
-        inference_provider = SimpleTestInferenceProvider()
-    else:
-        # 正常模式：直接使用本機模型 (Local Mode)。
-        from src.core.inference import LocalModelInferenceProvider
-        inference_provider = LocalModelInferenceProvider()
+    # 根據環境建立對應的推理提供者。
+    inference_provider = create_inference_provider()
 
     # 建立核心引擎與浮層視窗。
     engine = ImeCoreEngine(inference_provider)
