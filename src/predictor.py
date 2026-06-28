@@ -48,7 +48,7 @@ def predict(s):
         for _ in range(20):
             output = model(src_tensor, trg_input)
             next_token = output.argmax(dim=-1)[:, -1].item()
-            if next_token == 2 or next_token == 0:
+            if next_token == trg_tokenizer.sep_id or next_token == 0:
                 break
             result_ids.append(next_token)
             next_token_tensor = torch.tensor([[next_token]]).to(device)

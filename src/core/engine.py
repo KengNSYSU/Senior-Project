@@ -1,29 +1,32 @@
 from __future__ import annotations
 """IME 核心狀態機：自動判斷注音詞段並轉換為中文。"""
 
-from dataclasses import replace
+import threading
+from typing import Callable
 
-from .contracts import CommitAction, CompositionState, InferenceProvider
+from .contracts import CommitAction, CompositionState, InferenceProvider, CandidateItem
+from .worker import InferenceWorker
 
 
 class ImeCoreEngine:
-    def __init__(self, inference_provider: InferenceProvider) -> None:
+    def __init__(self, inference_provider: InferenceProvider, on_state_changed: Callable[[], None] | None = None) -> None:
         # 透過注入方式接推理器，保持核心可替換與可測試。
         self._provider = inference_provider
+        self._on_state_changed = on_state_changed
+        self._lock = threading.RLock()
+        
+        # 初始化非同步推理工作器
+        self._worker = InferenceWorker(self._provider, self._on_inference_complete)
+        
         self._state = CompositionState(
-            is_active=True,
             status="AUTO",
             debug_message="就緒：自動判斷注音詞段",
         )
 
     @property
     def state(self) -> CompositionState:
-        return self._state
-
-    def clear(self) -> CompositionState:
-        # 主動清空組字緩衝與候選清單。
-        self._clear_composition(clear_debug=True)
-        return replace(self._state)
+        with self._lock:
+            return self._state
 
     def handle_key(self, key: str) -> CommitAction | None:
         """根據按鍵類型分派給對應的處理方法。"""
@@ -44,6 +47,8 @@ class ImeCoreEngine:
     def _handle_escape(self) -> None:
         self._state.debug_message = "Esc：清空組字"
         self._clear_composition()
+        if self._on_state_changed:
+            self._on_state_changed()
         return None
 
     def _handle_backspace(self) -> None:
@@ -55,6 +60,8 @@ class ImeCoreEngine:
             )
         else:
             self._state.debug_message = "Backspace：buffer 已是空"
+        if self._on_state_changed:
+            self._on_state_changed()
         return None
 
     def _handle_navigation(self, key: str) -> None:
@@ -66,10 +73,15 @@ class ImeCoreEngine:
         self._state.selected_index = (self._state.selected_index + step) % total
         selected = self._state.candidates[self._state.selected_index].text
         self._state.debug_message = f"{key}：選擇候選 -> {selected}"
+        if self._on_state_changed:
+            self._on_state_changed()
         return None
 
     def _handle_commit(self) -> CommitAction | None:
         # 僅 Enter 作為提交鍵，避免與一聲（space）衝突。
+        # 在提交前，等待當前最新的背景推理任務完成 (最長等待 0.8s)
+        self._worker.wait_for_completion(timeout=0.8)
+
         if self._state.candidates:
             # Enter 常會先在輸入框產生換行，需多刪 1 碼避免殘留前字。
             return self._commit_selected(trigger_consumed=True)
@@ -79,6 +91,8 @@ class ImeCoreEngine:
         else:
             self._state.debug_message = "enter：buffer 已是空"
         self._clear_composition()
+        if self._on_state_changed:
+            self._on_state_changed()
         return None
 
     def _handle_composition(self, key: str) -> None:
@@ -90,12 +104,16 @@ class ImeCoreEngine:
         self._state.debug_message = (
             f"輸入 '{key}'：buffer='{self._state.buffer}'，候選={len(self._state.candidates)}"
         )
+        if self._on_state_changed:
+            self._on_state_changed()
         return None
 
     def _handle_ignored_key(self, key: str) -> None:
         # 非組字鍵會中斷目前詞段。
         self._state.debug_message = f"忽略鍵 '{key}'：非組字鍵"
         self._clear_composition()
+        if self._on_state_changed:
+            self._on_state_changed()
         return None
 
     def _commit_selected(self, trigger_consumed: bool) -> CommitAction | None:
@@ -112,7 +130,7 @@ class ImeCoreEngine:
         if trigger_consumed:
             replace_len += 1
 
-        trigger = "space" if trigger_consumed else "enter"
+        trigger = "enter" if trigger_consumed else "space"
         self._state.debug_message = f"{trigger} 提交：'{text}'，replace_len={replace_len}"
         self._clear_composition()
         return CommitAction(text=text, replace_len=replace_len)
@@ -124,14 +142,38 @@ class ImeCoreEngine:
         return key.isprintable()
 
     def _refresh_candidates(self) -> None:
-        # 每次緩衝變動即重新推理候選。
-        self._state.candidates = self._provider.infer(self._state.buffer, top_k=9)
-        self._state.selected_index = 0
+        buffer = self._state.buffer
+        if not buffer:
+            self._state.candidates = []
+            self._state.selected_index = 0
+            # 確保 worker 同步標記為完成狀態
+            with self._lock:
+                self._worker._event.set()
+            return
+
+        # 異步提交給背景工作器，不阻塞鍵盤執行緒
+        self._worker.submit(buffer)
+
+    def _on_inference_complete(self, buffer: str, candidates: list[CandidateItem]) -> None:
+        """非同步推理完成的回調函數。"""
+        with self._lock:
+            # 只有當前 buffer 依然與完成推理的 buffer 一致時才更新候選清單
+            if self._state.buffer == buffer:
+                self._state.candidates = candidates
+                self._state.selected_index = 0
+                self._state.debug_message = (
+                    f"非同步推理完成：buffer='{buffer}'，候選={len(candidates)}"
+                )
+                if self._on_state_changed:
+                    self._on_state_changed()
 
     def _clear_composition(self, clear_debug: bool = False) -> None:
         self._state.buffer = ""
         self._state.candidates = []
         self._state.selected_index = 0
+        # 清空時將 worker 狀態重設為 Idle
+        with self._lock:
+            self._worker._event.set()
         if clear_debug:
             self._state.debug_message = ""
 

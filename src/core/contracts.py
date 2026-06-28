@@ -21,8 +21,6 @@ class CandidateItem:
 
 @dataclass
 class CompositionState:
-    # 是否處於輸入法啟用狀態。
-    is_active: bool = False
     # 目前組字緩衝內容（尚未提交）。
     buffer: str = ""
     # 目前候選清單。

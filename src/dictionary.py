@@ -1,4 +1,3 @@
-import torch
 from transformers import BertTokenizer
 
 class KeySourceTokenizer:
@@ -35,16 +34,6 @@ class LabelTargetTokenizer:
         self.cls_id = self.tokenizer.cls_token_id # 相當於 <SOS>
         self.sep_id = self.tokenizer.sep_token_id # 相當於 <EOS>
 
-    def encode(self, text, max_len=32):
-        # 使用 BERT 的編碼方式，加上開始與結束符號
-        encoded = self.tokenizer.encode(
-            text, 
-            add_special_tokens=True, 
-            max_length=max_len, 
-            truncation=True, 
-            padding='max_length'
-        )
-        return encoded
 
     @property
     def vocab_size(self):

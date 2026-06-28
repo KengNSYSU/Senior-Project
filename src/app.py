@@ -6,13 +6,13 @@ import os
 from src.adapters.input_capture import InputCaptureAdapter
 from src.adapters.output_commit import OutputCommitAdapter
 from src.adapters.overlay_ui import OverlayWindow
-from src.config import load_config
+from src.config import load_config, AppConfig
 from src.core.contracts import InferenceProvider
 from src.core.engine import ImeCoreEngine
 
 
-def create_inference_provider() -> InferenceProvider:
-    """根據環境變數建立對應的推理提供者。"""
+def create_inference_provider(config: AppConfig) -> InferenceProvider:
+    """根據環境與配置建立對應的推理提供者。"""
     use_test_mode = os.getenv("ZHUYIN_TEST_MODE", "0") == "1"
     if use_test_mode:
         # 簡單測試模式：只用硬編碼規則驗證鍵盤輸入。
@@ -25,14 +25,21 @@ def create_inference_provider() -> InferenceProvider:
 
 
 def main() -> None:
-    # 載入環境設定（詞典路徑、遠端模型端點）。
+    # 載入環境設定（包含詞典與模型端點）。
     config = load_config()
 
     # 根據環境建立對應的推理提供者。
-    inference_provider = create_inference_provider()
+    inference_provider = create_inference_provider(config)
+
+    # 宣告 ui 的變數，以便 closure 能夠引用
+    ui: OverlayWindow | None = None
+
+    def on_state_changed() -> None:
+        if ui is not None:
+            ui.enqueue_state(engine.state)
 
     # 建立核心引擎與浮層視窗。
-    engine = ImeCoreEngine(inference_provider)
+    engine = ImeCoreEngine(inference_provider, on_state_changed=on_state_changed)
     ui = OverlayWindow()
 
     capture_adapter: InputCaptureAdapter | None = None
@@ -40,11 +47,13 @@ def main() -> None:
     def on_key(key: str) -> None:
         # 將按鍵事件交給核心狀態機處理。
         action = engine.handle_key(key)
-        ui.enqueue_state(engine.state)
+        if ui is not None:
+            ui.enqueue_state(engine.state)
         if action:
             # 若核心回傳提交動作，執行替換/輸出。
             output_adapter.commit_text(action.text, replace_len=action.replace_len)
-            ui.enqueue_state(engine.state)
+            if ui is not None:
+                ui.enqueue_state(engine.state)
 
     # 先建立輸入擷取，再建立提交器以便互相協調暫停狀態。
     capture_adapter = InputCaptureAdapter(on_key=on_key)
