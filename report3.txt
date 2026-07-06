@@ -1,0 +1,13 @@
+powered by v5
+output1:
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 75.41%
+Average Substring Accuracy: 36.46%
+output2:
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 52.15%
+Average Substring Accuracy: 32.94%
+output3:
+Total sentences evaluated: 2050
+Average Subsequence Accuracy: 36.93%
+Average Substring Accuracy: 25.03%
