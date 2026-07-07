@@ -83,7 +83,7 @@ class ImeCoreEngine:
         self._worker.wait_for_completion(timeout=0.8)
 
         if self._state.candidates:
-            # Enter 常會先在輸入框產生換行，需多刪 1 碼避免殘留前字。
+            # Enter 作為提交鍵，不預設多刪 1 碼以免刪除正常字元。
             return self._commit_selected(trigger_consumed=True)
 
         if self._state.buffer:
@@ -127,8 +127,6 @@ class ImeCoreEngine:
             text = self._state.candidates[self._state.selected_index].text
 
         replace_len = len(self._state.buffer)
-        if trigger_consumed:
-            replace_len += 1
 
         trigger = "enter" if trigger_consumed else "space"
         self._state.debug_message = f"{trigger} 提交：'{text}'，replace_len={replace_len}"

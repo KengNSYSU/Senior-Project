@@ -8,17 +8,56 @@ from pynput import keyboard
 
 
 class InputCaptureAdapter:
-    def __init__(self, on_key: Callable[[str], None]) -> None:
+    def __init__(self, on_key: Callable[[str], None], is_composing: Callable[[], bool] | None = None) -> None:
         # on_key: 單鍵事件。
         self._on_key = on_key
+        self._is_composing = is_composing
         self._listener: keyboard.Listener | None = None
         self._capture_paused = False
         self._suppress_until = 0.0
+        self._suppressing_enter = False
 
     def start(self) -> None:
         # 啟動背景監聽執行緒。
-        self._listener = keyboard.Listener(on_press=self._on_press, on_release=self._on_release)
+        # 在 Windows 上利用 win32_event_filter 攔截 Enter 鍵，避免它在目標視窗中觸發換行或送出
+        import sys
+        if sys.platform == "win32":
+            self._listener = keyboard.Listener(
+                on_press=self._on_press,
+                on_release=self._on_release,
+                win32_event_filter=self._win32_event_filter
+            )
+        else:
+            self._listener = keyboard.Listener(on_press=self._on_press, on_release=self._on_release)
         self._listener.start()
+
+    def _win32_event_filter(self, msg: int, data: any) -> bool:
+        try:
+            # VK_RETURN (Enter 鍵) 的虛擬鍵碼為 0x0D
+            if data.vkCode == 0x0D:
+                # 0x0100: WM_KEYDOWN, 0x0104: WM_SYSKEYDOWN
+                if msg in (0x0100, 0x0104):
+                    composing = self._is_composing() if self._is_composing else False
+                    if not self._capture_paused and composing:
+                        self._suppressing_enter = True
+                        self._on_key("enter")
+                        
+                        if self._listener is not None:
+                            self._listener.suppress_event()
+                            
+                # 0x0101: WM_KEYUP, 0x0105: WM_SYSKEYUP
+                elif msg in (0x0101, 0x0105):
+                    if self._suppressing_enter:
+                        self._suppressing_enter = False
+                        if self._listener is not None:
+                            self._listener.suppress_event()
+        except Exception as e:
+            # SuppressException 必須重新向上拋出，pynput 才能接收並在作業系統層級攔截該按鍵事件
+            if e.__class__.__name__ == 'SuppressException':
+                raise
+            import traceback
+            traceback.print_exc()
+        return True
 
     def set_paused(self, paused: bool) -> None:
         # 提交文字時暫停擷取，避免自觸發回圈。

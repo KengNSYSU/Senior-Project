@@ -1,5 +1,4 @@
 from __future__ import annotations
-"""C 方案驗證版入口：串接輸入擷取、推理核心、浮層 UI 與提交器。"""
 
 import os
 
@@ -50,13 +49,19 @@ def main() -> None:
         if ui is not None:
             ui.enqueue_state(engine.state)
         if action:
-            # 若核心回傳提交動作，執行替換/輸出。
-            output_adapter.commit_text(action.text, replace_len=action.replace_len)
+            # 若核心回傳提交動作，在獨立的背景執行緒中執行替換與輸出，
+            # 避免阻塞或卡死鍵盤監聽（Hook）執行緒，解決事件死鎖與卡頓問題。
+            import threading
+            threading.Thread(
+                target=output_adapter.commit_text,
+                args=(action.text, action.replace_len),
+                daemon=True
+            ).start()
             if ui is not None:
                 ui.enqueue_state(engine.state)
 
     # 先建立輸入擷取，再建立提交器以便互相協調暫停狀態。
-    capture_adapter = InputCaptureAdapter(on_key=on_key)
+    capture_adapter = InputCaptureAdapter(on_key=on_key, is_composing=lambda: bool(engine.state.buffer))
     output_adapter = OutputCommitAdapter(pause_capture=capture_adapter.set_paused)
 
     # 啟動背景鍵盤監聽與前景 UI 事件迴圈。
