@@ -31,6 +31,11 @@ class InputCaptureAdapter:
             self._listener = keyboard.Listener(on_press=self._on_press, on_release=self._on_release)
         self._listener.start()
 
+    def stop(self) -> None:
+        # 停止背景監聽執行緒。
+        if self._listener is not None:
+            self._listener.stop()
+
     def _win32_event_filter(self, msg: int, data: any) -> bool:
         try:
             # VK_RETURN (Enter 鍵) 的虛擬鍵碼為 0x0D

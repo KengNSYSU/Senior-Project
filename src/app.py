@@ -50,7 +50,7 @@ def main() -> None:
             ui.enqueue_state(engine.state)
         if action:
             # 若核心回傳提交動作，在獨立的背景執行緒中執行替換與輸出，
-            # 避免阻塞或卡死鍵盤監聽（Hook）執行緒，解決事件死鎖與卡頓問題。
+            # 避免阻塞或卡死鍵盤監聯（Hook）執行緒，解決事件死鎖與卡頓問題。
             import threading
             threading.Thread(
                 target=output_adapter.commit_text,
@@ -68,6 +68,9 @@ def main() -> None:
     capture_adapter.start()
     ui.enqueue_state(engine.state)
     ui.run()
+
+    # UI 關閉後，停止背景鍵盤監聽以避免 zombie process。
+    capture_adapter.stop()
 
 
 if __name__ == "__main__":

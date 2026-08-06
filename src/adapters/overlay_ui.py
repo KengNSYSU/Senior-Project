@@ -2,6 +2,7 @@ from __future__ import annotations
 """C 方案浮層視窗：顯示輸入狀態、組字緩衝與候選清單。"""
 
 import queue
+import threading
 import tkinter as tk
 from dataclasses import replace
 
@@ -15,6 +16,9 @@ class OverlayWindow:
         self._root.title("Senior Project IME")
         self._root.attributes("-topmost", True)
         self._root.geometry("460x160+100+100")
+
+        self._closed = threading.Event()
+        self._root.protocol("WM_DELETE_WINDOW", self._on_close)
 
         self._state_queue: queue.Queue[CompositionState] = queue.Queue()
 
@@ -36,10 +40,23 @@ class OverlayWindow:
         # 由其他執行緒推入狀態，由 UI 執行緒統一渲染。
         self._state_queue.put(replace(state))
 
+    @property
+    def is_closed(self) -> bool:
+        """視窗是否已關閉，供外部查詢以進行資源清理。"""
+        return self._closed.is_set()
+
     def run(self) -> None:
         self._root.mainloop()
 
+    def _on_close(self) -> None:
+        # 標記已關閉，停止 polling 後再銷毀視窗。
+        self._closed.set()
+        self._root.destroy()
+
     def _drain_queue(self) -> None:
+        # 若視窗已關閉，不再排程以避免操作已銷毀的 widget。
+        if self._closed.is_set():
+            return
         # 批次取出待渲染狀態，降低 UI 閃爍。
         while True:
             try:

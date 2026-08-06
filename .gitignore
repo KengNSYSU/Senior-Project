@@ -7,3 +7,5 @@ __pycache__/
 
 # AI 模型權重檔
 *.pth
+
+.agents/
