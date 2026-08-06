@@ -39,7 +39,21 @@ def main() -> None:
 
     # 建立核心引擎與浮層視窗。
     engine = ImeCoreEngine(inference_provider, on_state_changed=on_state_changed)
-    ui = OverlayWindow()
+
+    def on_ime_changed(is_english: bool) -> None:
+        if is_english:
+            # 切回英文：恢復攔截。
+            if capture_adapter is not None:
+                capture_adapter.set_paused(False)
+        else:
+            # 切到非英文：清空組字並暫停攔截。
+            engine.clear_composition()
+            if capture_adapter is not None:
+                capture_adapter.set_paused(True)
+            if ui is not None:
+                ui.enqueue_state(engine.state)
+
+    ui = OverlayWindow(on_ime_changed=on_ime_changed)
 
     capture_adapter: InputCaptureAdapter | None = None
 

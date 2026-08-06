@@ -28,6 +28,12 @@ class ImeCoreEngine:
         with self._lock:
             return self._state
 
+    def clear_composition(self) -> None:
+        """清空組字緩衝與候選，供外部在模式切換時呼叫。"""
+        self._clear_composition()
+        if self._on_state_changed:
+            self._on_state_changed()
+
     def handle_key(self, key: str) -> CommitAction | None:
         """根據按鍵類型分派給對應的處理方法。"""
         if key == "esc":
