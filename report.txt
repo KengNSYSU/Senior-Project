@@ -1,3 +1,5 @@
+len 32
+
 powered by v3
 output1:
 Total sentences evaluated: 2000
@@ -11,3 +13,31 @@ output3:
 Total sentences evaluated: 2050
 Average Subsequence Accuracy: 39.27%
 Average Substring Accuracy: 25.65%
+
+powered by v4
+output1:
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 78.53%
+Average Substring Accuracy: 36.98%
+output2:
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 56.11%
+Average Substring Accuracy: 32.66%
+output3:
+Total sentences evaluated: 2050
+Average Subsequence Accuracy: 39.85%
+Average Substring Accuracy: 27.73%
+
+powered by v5
+output1:
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 75.41%
+Average Substring Accuracy: 36.46%
+output2:
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 52.15%
+Average Substring Accuracy: 32.94%
+output3:
+Total sentences evaluated: 2050
+Average Subsequence Accuracy: 36.93%
+Average Substring Accuracy: 25.03%

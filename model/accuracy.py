@@ -44,6 +44,11 @@ def main():
     count = 0
     for file_path in txt_files:
         print(f"Evaluating file: {os.path.basename(file_path)}...")
+        
+        file_total_count = 0
+        file_subseq_acc = 0.0
+        file_substr_acc = 0.0
+        
         with open(file_path, 'r', encoding='utf-8') as f:
             for line in f:
                 # Remove only trailing newline characters, preserving spaces
@@ -54,9 +59,6 @@ def main():
                 # Split strictly by tab character
                 parts = line.split('\t')
                 if len(parts) >= 2:
-                    if count%10 == 0:
-                        print(count)
-                    count += 1
                     
                     # Do not strip spaces, as they might be part of the data
                     input_string = parts[0]
@@ -77,25 +79,30 @@ def main():
                         subseq_acc = subseq_len / len(label)
                         substr_acc = substr_len / len(label)
                         
-                        # Accumulate accuracy
-                        total_subseq_acc += subseq_acc
-                        total_substr_acc += substr_acc
-                        total_count += 1
+                        # Accumulate accuracy for the current file
+                        file_subseq_acc += subseq_acc
+                        file_substr_acc += substr_acc
+                        file_total_count += 1
                         
                     except Exception as e:
                         print(f"Error predicting '{input_string}': {e}")
+
+        if file_total_count > 0:
+            avg_subseq_acc = file_subseq_acc / file_total_count
+            avg_substr_acc = file_substr_acc / file_total_count
+            
+            print("-" * 30)
+            print(f"Results for: {os.path.basename(file_path)}")
+            print(f"Total sentences evaluated: {file_total_count}")
+            print(f"Average Subsequence Accuracy: {avg_subseq_acc * 100:.2f}%")
+            print(f"Average Substring Accuracy: {avg_substr_acc * 100:.2f}%")
+            print("-" * 30)
+        else:
+            print(f"No valid data found to evaluate in {os.path.basename(file_path)}.")
                         
-    if total_count > 0:
-        avg_subseq_acc = total_subseq_acc / total_count
-        avg_substr_acc = total_substr_acc / total_count
-        
-        print("-" * 30)
-        print(f"Total sentences evaluated: {total_count}")
-        print(f"Average Subsequence Accuracy: {avg_subseq_acc * 100:.2f}%")
-        print(f"Average Substring Accuracy: {avg_substr_acc * 100:.2f}%")
-        print("-" * 30)
-    else:
-        print("No valid data found to evaluate.")
+    if not txt_files:
+        print("No files were processed.")
+
 
 if __name__ == "__main__":
     main()
