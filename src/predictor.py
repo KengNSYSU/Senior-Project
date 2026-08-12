@@ -21,8 +21,12 @@ def initialize(base_path: str = "."):
         trg_vocab_size=trg_tokenizer.vocab_size, 
         d_model=512
     ).to(device)
-
+    # ── 模型權重檔名 ──────────────────────────────────
+    # 若要替換成其他版本的模型，只需修改下方檔名即可。
+    # 例如：將 "transcoder_v1.pth" 改為 "transcoder_v2.pth"
+    # 新的 .pth 檔需放在 src/ 目錄下。
     weight_path = os.path.join(base_path, "transcoder_v1.pth")
+    # ─────────────────────────────────────────────────
     if not os.path.exists(weight_path):
         print(f"❌ 找不到權重檔！路徑：{weight_path}")
         return False

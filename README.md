@@ -1,17 +1,60 @@
 # Senior-Project
 
-## 執行方式（Windows）
+## 環境需求
 
-1. 建立並啟用虛擬環境。
-2. 安裝相依套件。
-3. 啟動應用程式。
+| 項目 | 需求 |
+|------|------|
+| 作業系統 | **Windows 10 / 11**（使用 Win32 API 進行鍵盤攔截與 IME 偵測） |
+| Python | **≥ 3.10**（程式碼使用 `X \| Y` 型別語法） |
+| 模型權重 | `src/transcoder_v1.pth`（未納入 Git，需另行取得，見下方說明） |
+| 網路 | **首次執行需要網路**（自動下載 `bert-base-chinese` tokenizer，之後會使用快取） |
 
-PowerShell 範例：
+> **Linux / macOS 使用者注意：** 本專案目前僅支援 Windows。多個 Adapter 直接呼叫
+> `ctypes.windll`（user32 / imm32），在非 Windows 環境會無法啟動。
 
-```
+## 執行方式
+
+### 1. 建立並啟用虛擬環境
+
+```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+```
+
+### 2. 安裝相依套件
+
+**有 NVIDIA GPU（CUDA）：**
+```powershell
 pip install -r requirements.txt
+```
+
+**僅使用 CPU（無 NVIDIA GPU 或不需要 GPU 加速）：**
+```powershell
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+pip install -r requirements.txt --no-deps
+pip install pynput transformers
+```
+> CPU 版 torch 約 200 MB，CUDA 版約 2.5 GB。無 GPU 的電腦建議使用 CPU 版以節省空間與安裝時間。
+
+### 3. 取得模型權重
+
+模型權重檔 `transcoder_v1.pth`（約 273 MB）未納入 Git 版控。請向專案成員取得後放置於：
+```
+src/transcoder_v1.pth
+```
+> 若模型檔名與上方不同，請至 `src/predictor.py` 修改對應的檔名（搜尋 `模型權重檔名` 註解區塊）。
+
+### 4. 啟動應用程式
+
+```powershell
+python -m src.app
+```
+
+### 測試模式（無需模型權重）
+
+若尚未取得模型權重檔，可透過環境變數啟用測試模式，使用硬編碼規則驗證鍵盤輸入流程：
+```powershell
+$env:ZHUYIN_TEST_MODE="1"
 python -m src.app
 ```
 
