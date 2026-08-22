@@ -1,3 +1,4 @@
+import torch
 from transformers import BertTokenizer
 
 class KeySourceTokenizer:
@@ -30,11 +31,24 @@ class LabelTargetTokenizer:
     def __init__(self):
         # 自動從 Hugging Face 下載或讀取快取
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-chinese")
+        # self.tokenizer.add_special_tokens({'additional_special_tokens': [' ']})
+        if " " not in self.tokenizer.get_vocab():
+            self.tokenizer.add_tokens([" "])
         # BERT 的特殊 ID: [PAD]=0, [UNK]=100, [CLS]=101, [SEP]=102
         self.cls_id = self.tokenizer.cls_token_id # 相當於 <SOS>
         self.sep_id = self.tokenizer.sep_token_id # 相當於 <EOS>
 
+    def encode(self, text, max_len=32):
+        encoded = self.tokenizer.encode(
+            text,
+            add_special_tokens=True,
+            max_length=max_len,
+            truncation=True,
+            padding='max_length',
+            clean_up_tokenization_spaces=False
+        )
+        return encoded
 
     @property
     def vocab_size(self):
-        return self.tokenizer.vocab_size
+        return len(self.tokenizer)

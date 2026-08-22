@@ -13,18 +13,19 @@ class LocalModelInferenceProvider(InferenceProvider):
     def __init__(self) -> None:
         # 在此匯入 predictor，確保相依性與環境準備就緒。
         import os
+        import sys
+
+        # 取得 src 的絕對路徑，並加入 sys.path，
+        # 使 predictor.py 內部的直接 import（如 from transformer_main import ...）能正確解析。
+        src_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        if src_dir not in sys.path:
+            sys.path.insert(0, src_dir)
+
         from .. import predictor
 
-        # 取得 src 的絕對路徑
-        # __file__ -> .../src/core/inference.py
-        # os.path.dirname -> .../src/core
-        # os.path.dirname -> .../src
-        src_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
         self.predictor = predictor
-        # 將路徑作為參數傳入，而不是改變工作目錄
-        if not self.predictor.initialize(base_path=src_dir):
-            raise RuntimeError("本機模型初始化失敗：找不到模型權重檔 transcoder_v1.pth！")
+        if not self.predictor.initialize():
+            raise RuntimeError("本機模型初始化失敗：找不到模型權重檔！")
 
     def infer(self, buffer: str, top_k: int = 9) -> List[CandidateItem]:
         if not buffer:
