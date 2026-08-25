@@ -20,7 +20,7 @@ def initialize():
         trg_vocab_size=trg_tokenizer.vocab_size, 
         d_model=512
     ).to(device)
-    weight_path = os.path.join('model', 'transcoder_len56_v4.pth')
+    weight_path = os.path.join('model', 'transcoder_len52_v5.pth')
     # weight_path = "transcoder_v2.pth"
     if not os.path.exists(weight_path):
         print("找不到權重檔！")
@@ -38,13 +38,13 @@ def predict(s):
     user_input = s.strip().lower()
 
     with torch.no_grad():
-        src_ids = src_tokenizer.encode(user_input, max_len=56)
+        src_ids = src_tokenizer.encode(user_input, max_len=52)
         src_tensor = torch.tensor([src_ids]).to(device)
         trg_input = torch.tensor([[trg_tokenizer.cls_id]]).to(device)
         result_ids = []
         
         # 放開限制，最多吐 32 個 Token
-        for _ in range(56):
+        for _ in range(52):
             output = model(src_tensor, trg_input)
             logits = output[:, -1, :] # 拿到最後一個 Token 的所有機率分佈
             
