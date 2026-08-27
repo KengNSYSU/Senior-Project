@@ -20,7 +20,7 @@ def initialize():
         trg_vocab_size=trg_tokenizer.vocab_size, 
         d_model=512
     ).to(device)
-    weight_path = os.path.join('model', 'transcoder_len52_v5.pth')
+    weight_path = os.path.join('model', 'transcoder_len52_v7.pth')
     # weight_path = "transcoder_v2.pth"
     if not os.path.exists(weight_path):
         print("找不到權重檔！")
