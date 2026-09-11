@@ -1,1 +1,57 @@
 len54
+
+v1
+output1.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 86.31%
+Average Substring Accuracy: 37.45%
+output2.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 67.04%
+Average Substring Accuracy: 48.60%
+output3.txt
+Total sentences evaluated: 2050
+Average Subsequence Accuracy: 46.89%
+Average Substring Accuracy: 36.33%
+
+v2
+output1.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 88.72%
+Average Substring Accuracy: 37.36%
+output2.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 57.89%
+Average Substring Accuracy: 38.27%
+output3.txt
+Total sentences evaluated: 2050
+Average Subsequence Accuracy: 47.60%
+Average Substring Accuracy: 35.89%
+
+v3
+output1.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 88.75%
+Average Substring Accuracy: 37.42%
+output2.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 51.22%
+Average Substring Accuracy: 39.25%
+output3.txt
+Total sentences evaluated: 2050
+Average Subsequence Accuracy: 48.25%
+Average Substring Accuracy: 38.00%
+
+v4
+output1.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 88.48%
+Average Substring Accuracy: 37.39%
+output2.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 65.79%
+Average Substring Accuracy: 45.66%
+output3.txt
+Total sentences evaluated: 2050
+Average Subsequence Accuracy: 47.45%
+Average Substring Accuracy: 37.92%
