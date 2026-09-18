@@ -8,6 +8,7 @@ src_tokenizer = None
 trg_tokenizer = None
 model = None
 name = 'transcoder_len57_v2.pth'
+model_len = 57
 
 def initialize():
     global device, src_tokenizer, trg_tokenizer, model
@@ -39,13 +40,13 @@ def predict(s):
     user_input = s.strip().lower()
 
     with torch.no_grad():
-        src_ids = src_tokenizer.encode(user_input, max_len=57)
+        src_ids = src_tokenizer.encode(user_input, max_len=model_len)
         src_tensor = torch.tensor([src_ids]).to(device)
         trg_input = torch.tensor([[trg_tokenizer.cls_id]]).to(device)
         result_ids = []
         
         # 放開限制，最多吐 32 個 Token
-        for _ in range(57):
+        for _ in range(model_len):
             output = model(src_tensor, trg_input)
             logits = output[:, -1, :] # 拿到最後一個 Token 的所有機率分佈
             
