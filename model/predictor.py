@@ -7,8 +7,8 @@ device = None
 src_tokenizer = None
 trg_tokenizer = None
 model = None
-name = 'transcoder_len57_v2.pth'
-model_len = 57
+name = 'transcoder_len54_v7.pth'
+model_len = 54
 
 def initialize():
     global device, src_tokenizer, trg_tokenizer, model
