@@ -55,46 +55,46 @@
 
 ```mermaid
 flowchart TD
-    subgraph OS_Layer [Windows 作業系統層]
-        KB[鍵盤硬體按鍵]
-        FG[目標前景應用程式 (VSCode / 瀏覽器 / 記事本)]
+    subgraph OS_Layer ["Windows 作業系統層"]
+        KB["鍵盤硬體按鍵"]
+        FG["目標前景應用程式 (VSCode / 瀏覽器 / 記事本)"]
     end
 
-    subgraph Adapters [適配器層 (Adapters)]
-        IC[InputCaptureAdapter\n(pynput + Win32 Event Filter)]
-        OC[OutputCommitAdapter\n(GetAsyncKeyState + 模擬 Backspace/Type)]
-        ID[ImeDetector\n(ImmGetDefaultIMEWnd 偵測系統輸入法狀態)]
-        UI[OverlayWindow\n(Tkinter 置頂懸浮視窗)]
+    subgraph Adapters ["適配器層 (Adapters)"]
+        IC["InputCaptureAdapter<br/>(pynput + Win32 Event Filter)"]
+        OC["OutputCommitAdapter<br/>(SendInput 模擬 Backspace/Type)"]
+        ID["ImeDetector<br/>(ImmGetDefaultIMEWnd 偵測系統輸入法狀態)"]
+        UI["OverlayWindow<br/>(Tkinter 置頂懸浮視窗)"]
     end
 
-    subgraph Core_Engine [核心狀態機與協調層]
-        Engine[ImeCoreEngine\n(按鍵事件路由、組字 Buffer 維護)]
-        Worker[InferenceWorker\n(背景工作佇列 + Debounce 防抖機制)]
+    subgraph Core_Engine ["核心狀態機與協調層"]
+        Engine["ImeCoreEngine<br/>(按鍵事件路由、組字 Buffer 維護)"]
+        Worker["InferenceWorker<br/>(背景工作佇列 + Debounce 防抖機制)"]
     end
 
-    subgraph Model_Layer [模型推論層]
-        Provider[LocalModelInferenceProvider]
-        Predictor[Predictor 模組]
-        Transformer[TranscoderModel\n(Seq2Seq Transformer)]
-        BertTok[BERT Target Tokenizer + Key Source Tokenizer]
+    subgraph Model_Layer ["模型推論層"]
+        Provider["LocalModelInferenceProvider"]
+        Predictor["Predictor 模組"]
+        Transformer["TranscoderModel<br/>(Seq2Seq Transformer)"]
+        BertTok["BERT Target Tokenizer + Key Source Tokenizer"]
     end
 
-    KB -->|鍵盤事件 Hook| IC
-    IC -->|按鍵字元 / 攔截 Enter| Engine
-    Engine -->|最新 Buffer 派發| Worker
-    Worker -->|非同步排程推論| Provider
+    KB -->|"鍵盤事件 Hook"| IC
+    IC -->|"按鍵字元 / 攔截 Enter"| Engine
+    Engine -->|"最新 Buffer 派發"| Worker
+    Worker -->|"非同步排程推論"| Provider
     Provider --> Predictor --> Transformer
     BertTok --> Predictor
-    Transformer -->|預測文字結果| Provider
-    Provider -->|回傳候選字| Worker
-    Worker -->|Callback 更新| Engine
-    Engine -->|推播狀態至 UI 佇列| UI
-    Engine -->|觸發提交 Action| OC
-    OC -->|刪除原始字元並鍵入結果| FG
-    ID -.->|每 330ms 輪詢檢查狀態| UI
+    Transformer -->|"預測文字結果"| Provider
+    Provider -->|"回傳候選字"| Worker
+    Worker -->|"Callback 更新"| Engine
+    Engine -->|"推播狀態至 UI 佇列"| UI
+    Engine -->|"觸發提交 Action"| OC
+    OC -->|"刪除原始字元並鍵入結果"| FG
+    ID -.->|"每 330ms 輪詢檢查狀態"| UI
 ```
 
-### 關鍵元件說明
+### 元件說明
 
 1. **InputCaptureAdapter (`src/adapters/input_capture.py`)**：
    - 使用 `pynput` 全域監聽鍵盤事件。
