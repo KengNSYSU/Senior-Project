@@ -183,7 +183,7 @@ flowchart LR
 
 ---
 
-## 📈 實驗評估與成效表現
+## 實驗評估與成效表現
 
 ### 1. 評估指標
 評估腳本 (`model/accuracy.py`) 使用以下兩大指標衡量推論品質：
@@ -212,9 +212,7 @@ flowchart LR
 | **len54 (v6)** | - | 89.44% | 37.50% | 56.29% | 46.16% | 50.38% | 41.42% |
 | **len55 (v1)** | [下載](https://drive.google.com/file/d/1yZRFEFlNprgJroa0Lwz6EpdTqjpqut_-/view?usp=sharing) | 89.48% | **37.62%** | 62.50% | 46.30% | **55.35%** | 40.68% |
 | **len56 (v1)** | - | 89.39% | 37.54% | 61.89% | 43.97% | 50.91% | 39.55% |
-| **len56 (v5)** | - | 91.30% | 37.48% | 48.67% | 40.73% | 48.01% | 39.24% |
 | **len57 (v2)** | - | 89.03% | 37.48% | 58.48% | 42.27% | 46.73% | 38.17% |
-| **len58 (v2)** | - | 90.91% | 37.48% | 60.80% | 50.09% | 52.47% | 41.62% |
 | **len58 (v6)** | [下載](https://drive.google.com/file/d/1VX7Wsieldv0L4_9wOc-MMH9VURQDDihg/view?usp=sharing) | **91.48%** | 37.45% | 50.68% | 43.24% | 47.99% | 40.15% |
 | **len59 (v1)** | - | 87.17% | 37.38% | 60.03% | 41.18% | 51.13% | 38.13% |
 | **len60 (v1)** | - | 87.82% | 37.49% | 64.17% | 51.75% | 54.69% | 42.37% |
@@ -242,7 +240,7 @@ flowchart LR
 
 ---
 
-## 📂 專案目錄結構
+## 專案目錄結構
 
 ```text
 Senior-Project/
@@ -341,7 +339,7 @@ pip install pynput transformers pypinyin tqdm
 | **`transcoder_len58_v6.pth`** | **純中文轉碼準確度最高**<br/>• 中文子序列：**91.48%**（全實驗最高）<br/>• 純中文日常打字最精準流暢 | [📥 Google Drive 下載](https://drive.google.com/file/d/1VX7Wsieldv0L4_9wOc-MMH9VURQDDihg/view?usp=sharing) |
 | **`transcoder_len63_v1.pth`** | **純英文與混打連續匹配最高**<br/>• 英文子序列：**70.89%**（全實驗最高）<br/>• 英文子字串：**55.67%**（全實驗最高）<br/>• 混打子字串：**42.88%**（全實驗最高） | [📥 Google Drive 下載](https://drive.google.com/file/d/1NSe-Zt0neS5Ta_h4hmvBeyqi4AuDR2aj/view?usp=sharing) |
 
-> 💡 **放置說明**：下載完成後，請將 `.pth` 權重檔放入專案的 `model/` 資料夾內（例如 `model/transcoder_len55_v1.pth`）。若欲切換不同權重，可開啟 [src/predictor.py]修改第 23 行之 `weight_path`。
+> **放置說明**：下載完成後，請將 `.pth` 權重檔放入專案的 `model/` 資料夾內（例如 `model/transcoder_len55_v1.pth`）。若欲切換不同權重，可開啟 [src/predictor.py]修改第 23 行之 `weight_path`。
 
 ---
 
