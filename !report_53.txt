@@ -13,3 +13,31 @@ output3.txt
 Total sentences evaluated: 2050
 Average Subsequence Accuracy: 47.39%
 Average Substring Accuracy: 37.33%
+
+v2
+output1.txt                                                                                                                                                                                                                                                                                                  
+Total sentences evaluated: 2000                                                                                                                                                                                                                                                                                           
+Average Subsequence Accuracy: 89.82%                                                                                                                                                                                                                                                                                      
+Average Substring Accuracy: 37.26%  
+output2.txt                                                                                                                                                                                                                                                                                                  
+Total sentences evaluated: 2000                                                                                                                                                                                                                                                                                           
+Average Subsequence Accuracy: 54.42%                                                                                                                                                                                                                                                                                      
+Average Substring Accuracy: 46.89%     
+output3.txt                                                                                                                                                                                                                                                                                                  
+Total sentences evaluated: 2050                                                                                                                                                                                                                                                                                           
+Average Subsequence Accuracy: 45.19%                                                                                                                                                                                                                                                                                      
+Average Substring Accuracy: 36.86% 
+
+v3
+output1.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 90.67%
+Average Substring Accuracy: 37.37%
+output2.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 48.24%
+Average Substring Accuracy: 43.83%
+output3.txt
+Total sentences evaluated: 2050
+Average Subsequence Accuracy: 44.10%
+Average Substring Accuracy: 35.08%
