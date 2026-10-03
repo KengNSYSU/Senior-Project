@@ -1,0 +1,15 @@
+len51
+
+v1
+output1.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 87.94%
+Average Substring Accuracy: 37.46%
+output2.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 49.74%
+Average Substring Accuracy: 40.78%
+output3.txt
+Total sentences evaluated: 2050
+Average Subsequence Accuracy: 47.47%
+Average Substring Accuracy: 37.26%
