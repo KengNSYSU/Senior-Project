@@ -13,3 +13,59 @@ output3.txt
 Total sentences evaluated: 2050
 Average Subsequence Accuracy: 47.47%
 Average Substring Accuracy: 37.26%
+
+v2
+output1.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 88.21%
+Average Substring Accuracy: 37.38%
+output2.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 57.88%
+Average Substring Accuracy: 42.43%
+output3.txt
+Total sentences evaluated: 2050
+Average Subsequence Accuracy: 43.98%
+Average Substring Accuracy: 34.31%
+
+v3
+output1.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 88.05%
+Average Substring Accuracy: 37.32%
+output2.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 60.65%
+Average Substring Accuracy: 45.96%
+output3.txt
+Total sentences evaluated: 2050
+Average Subsequence Accuracy: 48.27%
+Average Substring Accuracy: 38.73%
+
+v4
+output1.txt                                                                                                                                                                                                                                                                                                  
+Total sentences evaluated: 2000                                                                                                                                                                                                                                                                                           
+Average Subsequence Accuracy: 88.77%                                                                                                                                                                                                                                                                                      
+Average Substring Accuracy: 37.54%
+output2.txt                                                                                                                                                                                                                                                                                                  
+Total sentences evaluated: 2000                                                                                                                                                                                                                                                                                           
+Average Subsequence Accuracy: 58.85%                                                                                                                                                                                                                                                                                      
+Average Substring Accuracy: 40.83%
+output3.txt                                                                                                                                                                                                                                                                                                  
+Total sentences evaluated: 2050                                                                                                                                                                                                                                                                                           
+Average Subsequence Accuracy: 48.62%                                                                                                                                                                                                                                                                                      
+Average Substring Accuracy: 39.20%
+
+v5
+output1.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 89.07%
+Average Substring Accuracy: 37.42%
+output2.txt
+Total sentences evaluated: 2000
+Average Subsequence Accuracy: 63.45%
+Average Substring Accuracy: 40.18%
+ output3.txt
+Total sentences evaluated: 2050
+Average Subsequence Accuracy: 47.31%
+Average Substring Accuracy: 38.32%
